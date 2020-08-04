@@ -1,0 +1,211 @@
+﻿<!DOCYPE html>
+<html>
+<head>
+<title>Entity Framework вообще, и с PostgreSQL</title>
+</head>
+<body>
+<h1>Entity Framework вообще, и с PostgreSQL</h1>
+
+Entity Framework is a modern object-database mapper for .NET.
+It supports LINQ queries, change tracking, updates, and schema migrations.
+EF works with many databases, including SQL Database (on-premises and Azure), SQLite, MySQL, PostgreSQL, and Azure Cosmos DB.
+<br />
+<br />
+<a href="https://docs.microsoft.com/en-us/ef/">https://docs.microsoft.com/en-us/ef/</a>
+<br />
+<a href="https://docs.microsoft.com/en-us/ef/core/">https://docs.microsoft.com/en-us/ef/core/</a>
+
+
+
+<h2>Что такое "модель"?</h2>
+A model is made up of entity classes and a context object that represents a session with the database
+<sup><a href="https://docs.microsoft.com/en-us/ef/core/">(q)</a></sup>
+<br />
+Это означает, что модель (по крайней мере её часть (partial) можно нагенерировать из какого-нибудь DSL.
+
+<h3>Data Annotations</h3>
+You can also apply attributes (known as Data Annotations) to your classes and properties.
+Data annotations will override conventions, but will be overridden by Fluent API configuration.
+<br />
+Надо вообще про этот Fluent API почитать, а то непонятно, откуда он берётся и как его использовать.
+<br />
+Т.е. судя по примерам, при помощи этого API можно описывать в виде C#-кода (вместо Data Annotations),
+но пока неясно, зачем.
+
+<h3>Fluent API</h3>
+При рассмотрении примеров выясняется, что при помощи Fluent API можно сделать то,
+чего нельзя сделать при помощи Data Annotations.
+<br />
+В частности - задать имена для индексов первичных ключей
+
+
+<h3>Как примерно выглядит модель</h3>
+Главный класс в модели - это контекст:
+<pre>
+class MyContext : DbContext
+{
+    // Будет использоваться таблица с именем:
+    // - "Domains" 
+    // - "Domain", если свойство закомментировать
+    // - "ДОМЕННЫЕ ИМЕНА", если вписать атрибут [Table("ДОМЕННЫЕ ИМЕНА")] перед именем класса
+    public DbSet&lt;Domain&gt; Domains { get; set; } 
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+    	// modelBuilder.HasDefaultSchema("public");
+
+	modelBuilder.Entity&lt;User&gt;().HasKey(o =&gt; o.Id).HasName("НОМЕР ЗАПИСИ О ПОЛЬЗОВАТЕЛЕ");
+	modelBuilder.Entity&lt;User&gt;().Property(o =&gt; o.Id).HasColumnName("КЛЮЧ").HasColumnType("INT");
+	modelBuilder.Entity&lt;User&gt;().Property(o =&gt; o.Address).HasColumnName("АДРЕС").HasColumnType("NCLOB");
+	modelBuilder.Entity&lt;User&gt;().Property(o =&gt; o.Secret).HasColumnName("СЕКРЕТ").HasColumnType("NCLOB");
+	modelBuilder.Entity&lt;User&gt;().Property(o =&gt; o.IsParanoid).HasColumnName("ПРИЗНАКИ ПАРАНОЙИ").HasColumnType("BOOLEAN");
+
+	modelBuilder.Entity&lt;Domain&gt;().HasKey(o =&gt; o.Id).HasName("НОМЕР ЗАПИСИ О ДОМЕНЕ");
+	modelBuilder.Entity&lt;Domain&gt;().Property(o =&gt; o.Id).HasColumnName("КЛЮЧ").HasColumnType("INT");
+	modelBuilder.Entity&lt;Domain&gt;().Property(o =&gt; o.Name).HasColumnName("ИМЯ ДОМЕНА").HasColumnType("NCLOB");
+	modelBuilder.Entity&lt;Domain&gt;().Property(o =&gt; o.IsSecured).HasColumnName("ТРЕБУЕТСЯ СЕРТИФИКАТ").HasColumnType("BOOLEAN");
+	<!--
+	modelBuilder.Entity&lt;Right&gt;().HasKey(o =&gt; o.Id).HasName("НОМЕР ЗАПИСИ О ПРАВЕ");
+	modelBuilder.Entity&lt;Right&gt;().Property(o =&gt; o.Id).HasColumnName("КЛЮЧ").HasColumnType("INT");
+	-->
+	modelBuilder.Entity&lt;Right&gt;().HasNoKey();
+	modelBuilder.Entity&lt;Right&gt;().Property(o =&gt; o.User).HasColumnName("ПОЛЬЗОВАТЕЛЬ").HasColumnType("INT");
+	modelBuilder.Entity&lt;Right&gt;().Property(o =&gt; o.Domain).HasColumnName("ДОМЕН").HasColumnType("INT").HasIndex(o => o.Domain);
+	modelBuilder.Entity&lt;Right&gt;().Property(o =&gt; o.IsEditable).HasColumnName("МОЖЕТ РЕДАКТИРОВАТЬ").HasColumnType("BOOLEAN");
+	modelBuilder.Entity&lt;Right&gt;().HasIndex(o => o.User).HasName("ППП");
+	modelBuilder.Entity&lt;Right&gt;().HasIndex(o => o.User).HasName("ППД");
+	modelBuilder.Entity&lt;Right&gt;().HasIndex(o => new { o.User, o.Domain }).HasName("ПППД").IsUnique();
+<!--
+To configure a relationship in the Fluent API, you start by identifying the navigation properties that make up the relationship.
+HasOne or HasMany identifies the navigation property on the entity type you are beginning the configuration on.
+You then chain a call to WithOne or WithMany to identify the inverse navigation.
+-->
+	modelBuilder.Entity&lt;Domain&gt;()
+		.HasMany(p => p.Rights)
+		.WithOne(c => c.Domain);
+	modelBuilder.Entity&lt;User&gt;()
+		.HasMany(p => p.Rights)
+		.WithOne(c => c.User);
+    }
+    
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseSqlServer(@"Server=127.0.0.1;Database=test1;User ID=postgres;");
+    }
+}
+</pre>
+all public properties with a getter and a setter will be included in the model.
+<sup><a href="https://docs.microsoft.com/en-us/ef/core/modeling/entity-properties">(q)</a></sup>
+
+<pre>
+public class User
+{
+    public int Id { get; set; }
+    public string Address { get; set; }
+    public string Secret { get; set; }
+    public bool IsParanoid{ get; set; }
+
+    public List&lt;Right&gt; Rights { get; set; }
+}
+
+public class Domain
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public bool IsSecured { get; set; }
+
+    public List&lt;Right&gt; Rights { get; set; }
+}
+
+public class Right
+{
+<!--
+    public int Id { get; set; }
+-->
+    bool IsEditable { get; set; }
+
+    public Domain Domain { get; set; }
+    public User User { get; set; }
+}
+</pre>
+<!--
+<pre>
+[Table("ДОМЕННЫЕ ИМЕНА")]
+public class Domain
+{
+    // a property named Id or &lt;type name&gt;Id will be configured as the primary key of an entity.
+    // https://docs.microsoft.com/en-us/ef/core/modeling/keys
+    // By convention, on relational databases primary keys are created with the name PK_&lt;type name&gt;.
+    [Column("КЛЮЧ"), TypeName = "INT")]
+    public int Id { get; set; }
+    [Column("ИМЯ ДОМЕНА", TypeName = "NCLOB")]
+    public string Name { get; set; }
+    [Column("ТРЕБУЕТСЯ СЕРТИФИКАТ"), TypeName = "BOOLEAN")]
+    public bool IsSecured { get; set; }
+}
+</pre>
+-->
+Самое интересное тут это как происходит отображение внешних ключей (foreign keys).
+
+<h2>Как пользоваться моделью?</h2>
+<a href="https://docs.microsoft.com/en-us/ef/core/querying/">https://docs.microsoft.com/en-us/ef/core/querying/</a>
+<br />
+<pre>
+using (var context = new MyContext())
+{
+    var users = context.Users
+        .Where(o =&gt; o.Name.Contains(&quot;sevbes&quot;))
+        .ToList();
+}
+</pre>
+<a href="https://docs.microsoft.com/en-us/ef/core/querying/related-data#eager-loading">https://docs.microsoft.com/en-us/ef/core/querying/related-data#eager-loading</a>
+<pre>
+using (var context = new MyContext())
+{
+    var DomainsForUser = context.Domains
+        .Include(domain => domain.Rights)
+            .ThenInclude(right => right.User)
+            	.Where(user =&gt; user.Name.Contains(&quot;sevbes&quot;))
+        .ToList();
+}
+</pre>
+<h2>Какие сборки (assemblies) нужны</h2>
+<dl>
+<dt>Microsoft.EntityFrameworkCore</dt>
+<dd>
+LICENSE="Apache-2.0"
+<br />
+<a href="https://github.com/dotnet/efcore">https://github.com/dotnet/efcore</a>
+</dd>
+<dt>Npgsql.EntityFrameworkCore.PostgreSQL</dt>
+<dd>
+LICENSE="POSTGRESQL"
+<br />
+<a href="https://github.com/npgsql/efcore.pg">https://github.com/npgsql/efcore.pg</a>
+</dd>
+</dl>
+
+<h3>Как использовать фичу "nullable reference types"</h3>
+В файле проекта дописать <sup><a href="https://docs.microsoft.com/en-us/dotnet/csharp/tutorials/nullable-reference-types">(q)</a></sup>
+<pre>
+&lt;PropertyGroup&gt;
+    &lt;Nullable&gt;enable&lt;/Nullable&gt;
+&lt;/PropertyGroup&gt;
+</pre>
+В документации на CscTask не описан такой параметр:
+<br />
+<a href="https://docs.microsoft.com/en-us/visualstudio/msbuild/csc-task?view=vs-2019">https://docs.microsoft.com/en-us/visualstudio/msbuild/csc-task?view=vs-2019</a>
+<br />
+Но <a href="https://github.com/dotnet/roslyn/blob/Visual-Studio-2019-Version-16.7-Preview-6/src/Compilers/Core/MSBuildTask/Csc.cs#L156-L166">в коде</a> он есть
+<br />
+В компиляторе эта опция <a href="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/nullable-compiler-option">задокументирована</a>.
+
+
+<h2>System.ComponentModel.DataAnnotations</h2>
+using System.ComponentModel.DataAnnotations;
+
+<h2>Microsoft.EntityFrameworkCore</h2>
+using Microsoft.EntityFrameworkCore;
+
+</body>
+</html>

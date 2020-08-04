@@ -89,21 +89,25 @@ GENERATED { ALWAYS | BY DEFAULT } AS IDENTITY
 
 <strong>&lt;<a name="column-constraint-definition">column constraint definition</a>&gt;</strong>
 ::=
+[
+<a href="#column-constraint">&lt;constraint name definition&gt;</a>
+] 
+<a href="#column-constraint">&lt;column constraint&gt;</a>
+<br />
+<br />
+<strong>&lt;<a name="constraint-name-definition">constraint name definition</a>&gt;</strong>
+::=
+CONSTRAINT
+<a href="#constraint-name">&lt;constraint name&gt;</a>
+
+<br />
+<br />
+
+<strong>&lt;<a name="column-constraint">column constraint</a>&gt;</strong>
+::=
 NOT NULL
 | <a href="#unique-specification">&lt;unique specification&gt;</a>
 | <a href="#references-specification">&lt;references specification&gt;</a>
-<br />
-<br />
-
-
-<strong>&lt;<a name="references-specification">references specification</a>&gt;</strong>
-::= REFERENCES 
-<a href="#table-name">&lt;table name&gt;</a> 
-[
-<a href="#left-paren">&lt;left paren&gt;</a> 
-<a href="#column-name">&lt;column name&gt;</a>
-<a href="#right-paren">&lt;right paren&gt;</a>
-]
 <br />
 <br />
 
@@ -116,6 +120,18 @@ UNIQUE
 <font color="darkgray">(primary key подразумевает UNIQUE + NOT NULL, и возможно CLUSTERED INDEX )</font>
 <br />
 <br />
+
+<strong>&lt;<a name="references-specification">references specification</a>&gt;</strong>
+::= REFERENCES 
+<a href="#table-name">&lt;table name&gt;</a> 
+[
+<a href="#left-paren">&lt;left paren&gt;</a> 
+<a href="#column-name">&lt;column name&gt;</a>
+<a href="#right-paren">&lt;right paren&gt;</a>
+]
+<br />
+<br />
+
 
 <strong>&lt;<a name="predefined-type">predefined type</a>&gt;</strong>
 ::=
@@ -170,6 +186,12 @@ ON
 
 
 <strong>&lt;<a name="table-name">table name&gt;</a></strong>
+::=
+<a href="#identifier">&lt;identifier&gt;</a>
+<br />
+<br />
+
+<strong>&lt;<a name="constraint-name">constraint name&gt;</a></strong>
 ::=
 <a href="#identifier">&lt;identifier&gt;</a>
 <br />
