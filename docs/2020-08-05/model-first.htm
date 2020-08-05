@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf8" />
+<title>Model First в Entity Framework</title>
+</head>
+<body>
+
+<table><tr><td style="vertical-align:top;">
+<h1>Model First в Entity Framework</h1>
+</td><td style="vertical-align:top;">
+<br />
+</td></tr></table>
+
+Entity Framework — это технология моделирования объектно-реляционного сопоставления (<a href="https://ru.wikipedia.org/wiki/ORM">ORM</a>).
+<br />
+«EF6<sup>(6.4)</sup> is a stable, supported product, but is no longer being actively developed.»<sup><a href="https://docs.microsoft.com/en-us/ef/efcore-and-ef6/">(q)</a></sup>
+<br />
+«Для новых приложений .NET это рекомендуемая<sup> (<em>в 2019-м году</em>)</sup> технология.»<sup><a href="https://docs.microsoft.com/ru-ru/visualstudio/data-tools/entity-data-model-tools-in-visual-studio?view=vs-2019">(q)</a></sup>
+<br />
+Устраняет необходимость в ручном написании бо́льшей части кода для доступа к данным
+(который разработчикам иначе <a href="../2020-08-04/ef.htm">пришлось бы</a> писа́ть руками).
+<br />
+Полная документация:
+<br />
+<a href="https://docs.microsoft.com/ru-ru/ef/ef6/">https://docs.microsoft.com/ru-ru/ef/ef6/</a>
+<br />
+<br />
+Entity Framework Core (EF Core<sup>(3.1)</sup>) - более новая, список отличий - <a href="https://docs.microsoft.com/en-us/ef/efcore-and-ef6/">https://docs.microsoft.com/en-us/ef/efcore-and-ef6/</a>
+<br />
+В ней не поддерживается и не планируется Entity Data Model (EDM).
+<br />
+«Some EF6 features will not be implemented in EF Core.
+These features either depend on EF6's underlying Entity Data Model (EDM)
+and/or are complex features with relatively low return on investment.»<sup><a href="https://docs.microsoft.com/en-us/ef/efcore-and-ef6/">(q)</a></sup>
+<br />
+EF Core 5.0 will not run on .NET Framework.
+<br />
+<br />
+Model First - название одного из (четырёх?) подходов к работе с Entity Framework.
+<br />
+<img src="4ways.gif" alt="Четыре подхода к работе с Entity Framework" />
+<br />
+Разработчик создаёт концептуальную модель,
+<br />
+средства разработки помогают сформировать:
+<br />
+- физическую модель базы данных (БД),
+<br />
+- связи между концептуальной и физической моделями
+<br />
+- DDL-скрипты БД
+<br />
+- код на языке программирования C#.
+
+<h2>Entity Data Model (EDM)</h2>
+EDMX-файл (файл с расширением .emdx) - место, где хранится описание модели.
+Формат этого файла открыт и задокументирован, в нём три части, описывающие
+<br />
+- концептуальную модель
+<br />
+- физическую модель
+<br />
+- связи между концептуальной и физической моделями (MSL)
+<br />
+<br />
+Визард ???, создаёт .edmx-файл (как он это делает, может там .tt-шаблоны есть?).
+<br />
+Entity Framework Designer позволяет просматривать и изменять .edmx-файл внутри Visual Studio.
+<br />
+(вопросы:
+<br />
+- EDM Designer и Entity Framework Designer - это две разные компоненты, или одна и та же?
+<br />
+- как Entity Framework Designer устанавливается?
+<br />
+- Как проверить установлен ли Entity Framework Designer?
+<br />
+- опенсорсен ли Entity Framework Designer?
+<br />
+- Есть ли у Entity Framework Designer аналог в monodevelop?
+<br />
+- визард, который добавляет .edmx-файл в проект, он в какой компоненте?
+<br />
+)
+<br />
+<br />
+.edmx файлы не поддерживаются в EF Core <sup><a href="https://docs.microsoft.com/en-us/visualstudio/data-tools/entity-data-model-tools-in-visual-studio?view=vs-2019">(q)</a></sup>
+
+<h2>Скрипты для базы данных</h2>
+Data Definition Language (DDL) for creating a database schema, based on the the model.
+<br />
+(вопрос - а как эти скрипты должны попадать в базу?
+<br />
+их надо копировать (или делать симлинки) в проект типа "База данных"?)
+
+
+<h2>C#-код</h2>
+C#-код создаётся по модели при помощи шаблонов T4 (каких?).
+<br />
+Код состоит из двух разновидностей файлов:
+<br />
+- файла, с кодом класса-контекста
+<br />
+- набора файлов с описанием POCO-классов.
+<br />
+Они разделены в разные .tt-шаблоны для того, чтобы можно было поместить их в разные Assemblу-ы.
+<br />
+<br />
+
+<a href="https://www.devart.com/entitydeveloper/model-first.html">https://www.devart.com/entitydeveloper/model-first.html</a>
+<br />
+and then generating context and entity cases
+<br />
+and 
+<br />
+For example, it was implemented in that way in EDM Designer in Visual Studio 2010 and later. 
+<br />
+When you generate database in Visual Studio's EDM designer,
+it generates the mapping and storage part based on the conceptual part of the model. 
+<br />
+<br />
+<a href="https://metanit.com/sharp/entityframework/2.5.php">https://metanit.com/sharp/entityframework/2.5.php</a>
+<br />
+создадим новый проект по типу Console Application. И затем добавим в проект новый элемент.
+<br />
+Нажмем правой кнопкой мыши на проект в окне Solution Explorer и в появившемся списке
+<br />
+выберем Add -&gt; New Item. И затем в окне добавления нового элемента выберем ADO.NET Entity Data Model.
+<br />
+(или не выберем, потому что его там нет).
+<br />
+<br />
+Нажмем Add и нам откроется мастер создания модели.
+<br />
+"Empty EF Designer model"
+<br />
+Нажмем кнопку Finish, и перед нами откроется пустое окно создания модели.
+<br />
+Перетащим на это поле с панели Toolbox (Панель Инструментов) в левой части элемент Entity.
+<br />
+Выделим элемент и перейдем к окну свойств (в правом нижнем углу):
+<br />
+<br />
+сгенерируем код модели. Для этого нажмем на диаграмму модели правой кнопкой мыши
+<br />
+и выберем пункт "Add Code Generation Item"
+<br />
+<br />
+будет предложено выбрать версию EF:
+<br />
+EF" 6.x DbContext Generator Visual C# Items
+<br />
+<br />
+После рабаты визарда "EF" 6.x DbContext Generator Visual C# Items"
+в структуре проекта мы можем увидеть узел User.tt, который в качестве подузла
+<br />
+будет содержать класс модели в файле User.cs:
+<br />
+<br />
+Также здесь мы можем найти файл контекста данных User.Context.cs
+<br />
+<a href="https://docs.microsoft.com/ru-ru/ef/ef6/modeling/designer/workflows/model-first">https://docs.microsoft.com/ru-ru/ef/ef6/modeling/designer/workflows/model-first</a>
+
+<h2>Entity Framework Tools</h2>
+<a href="https://docs.microsoft.com/ru-ru/visualstudio/data-tools/entity-data-model-tools-in-visual-studio?view=vs-2019">https://docs.microsoft.com/ru-ru/visualstudio/data-tools/entity-data-model-tools-in-visual-studio?view=vs-2019</a>
+<br />
+<a href="https://docs.microsoft.com/en-us/visualstudio/data-tools/entity-data-model-tools-in-visual-studio?view=vs-2019">https://docs.microsoft.com/en-us/visualstudio/data-tools/entity-data-model-tools-in-visual-studio?view=vs-2019</a>
+<br />
+
+
+<h2>EDM Designer</h2>
+Visual Studio implementation of Model-First approach
+does not provide full control over storage and mapping parts of the model.
+<br />
+You cannot manually change column data type, rename storage tables, etc,
+because every time you re-generate a database,
+the storage and mapping parts are re-generated, and manual changes are lost.
+<br />
+(надо по-подробнее описать как именно эти потери происходят,
+какой код занимается генерированием, и почему это нельзя исправить)
+
+</body>
+</html>
