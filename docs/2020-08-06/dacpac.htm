@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf8" />
+<title>.cs &lt;- EF Core Power Tools &lt;- .dacpac -&gt; DacpacDeployUtility -&gt; DB</title>
+</head>
+<body>
+
+<table><tr><td style="vertical-align:top;">
+<h1>.cs &lt;- EF Core Power Tools &lt;- .dacpac -&gt; DacpacDeployUtility -&gt; DB</h1>
+</td><td style="vertical-align:top;">
+<br />
+</td></tr></table>
+
+Хранение модели БД в .dacpac-файлах пришло на смену хранению модели в .edmx-файлах.
+<br />
+Нет, конечно .edmx пока ещё не пропал, но в нём не хватает подробностей и специфики.
+А в .dacpac-файлах всё есть (правда только для MSSQL-сервера).
+<br />
+Суть идеи заключается в том, чтобы используя данные из .dacpac создать базу данных
+в СУБД PostgreSQL и MySQL.
+<br />
+<br />
+Вопрос такой не раз поднимался, но никто не дал на него ответа:
+<br />
+<a href="https://stackoverflow.com/questions/46420269/create-database-project-for-postgresql-in-visual-studio-2015">https://stackoverflow.com/questions/46420269/create-database-project-for-postgresql-in-visual-studio-2015</a>
+<br />
+<a href="https://stackoverflow.com/questions/39520405/can-i-create-a-dacpac-for-installing-ddl-against-a-mysql-database">https://stackoverflow.com/questions/39520405/can-i-create-a-dacpac-for-installing-ddl-against-a-mysql-database</a>
+<br />
+<a href="https://stackoverflow.com/questions/36688233/publishing-flow-in-postgres-similar-to-ssdt">https://stackoverflow.com/questions/36688233/publishing-flow-in-postgres-similar-to-ssdt</a>
+<br />
+<a href="https://stackoverflow.com/questions/19556552/visual-studio-database-project-alternative-for-postgresql">https://stackoverflow.com/questions/19556552/visual-studio-database-project-alternative-for-postgresql</a>
+
+<h2>DacpacDeployUtility</h2>
+Тщательное изучение этой утилиты должно дать ответ на вопрос:
+<br />
+А как же изготовлять .dacpac-файлы, если нет SQLServer Management Studio?
+<br />
+<br />
+<a href="https://github.com/imgen/DacpacDeployUtility">https://github.com/imgen/DacpacDeployUtility</a>
+<br />
+
+
+<h2>EF Core Power Tools</h2>
+
+</body>
+</html>
