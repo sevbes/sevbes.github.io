@@ -14,22 +14,23 @@
 
 Хранение модели БД в .dacpac-файлах пришло на смену хранению модели в .edmx-файлах.
 <br />
-Нет, конечно .edmx пока ещё не пропал, но в нём не хватает подробностей и специфики.
+Конечно .edmx пока ещё не пропал, но в нём не хватает подробностей и специфики.
 А в .dacpac-файлах всё есть (правда только для MSSQL-сервера).
 <br />
-Суть идеи заключается в том, чтобы используя данные из .dacpac создать базу данных
+<br />
+Суть моей идеи заключается в том, чтобы используя данные из .dacpac создать базу данных
 в СУБД PostgreSQL и MySQL.
 <br />
 <br />
 Вопрос такой не раз поднимался, но никто не дал на него ответа:
 <br />
-<a href="https://stackoverflow.com/questions/46420269/create-database-project-for-postgresql-in-visual-studio-2015">https://stackoverflow.com/questions/46420269/create-database-project-for-postgresql-in-visual-studio-2015</a>
+2013-10, <a href="https://stackoverflow.com/questions/19556552/visual-studio-database-project-alternative-for-postgresql">https://stackoverflow.com/questions/19556552/visual-studio-database-project-alternative-for-postgresql</a>
 <br />
-<a href="https://stackoverflow.com/questions/39520405/can-i-create-a-dacpac-for-installing-ddl-against-a-mysql-database">https://stackoverflow.com/questions/39520405/can-i-create-a-dacpac-for-installing-ddl-against-a-mysql-database</a>
+2016-04, <a href="https://stackoverflow.com/questions/36688233/publishing-flow-in-postgres-similar-to-ssdt">https://stackoverflow.com/questions/36688233/publishing-flow-in-postgres-similar-to-ssdt</a>
 <br />
-<a href="https://stackoverflow.com/questions/36688233/publishing-flow-in-postgres-similar-to-ssdt">https://stackoverflow.com/questions/36688233/publishing-flow-in-postgres-similar-to-ssdt</a>
+2016-09, <a href="https://stackoverflow.com/questions/39520405/can-i-create-a-dacpac-for-installing-ddl-against-a-mysql-database">https://stackoverflow.com/questions/39520405/can-i-create-a-dacpac-for-installing-ddl-against-a-mysql-database</a>
 <br />
-<a href="https://stackoverflow.com/questions/19556552/visual-studio-database-project-alternative-for-postgresql">https://stackoverflow.com/questions/19556552/visual-studio-database-project-alternative-for-postgresql</a>
+2017-09, <a href="https://stackoverflow.com/questions/46420269/create-database-project-for-postgresql-in-visual-studio-2015">https://stackoverflow.com/questions/46420269/create-database-project-for-postgresql-in-visual-studio-2015</a>
 
 <h2>DacpacDeployUtility</h2>
 Тщательное изучение этой утилиты должно дать ответ на вопрос:
@@ -39,9 +40,48 @@
 <br />
 <a href="https://github.com/imgen/DacpacDeployUtility">https://github.com/imgen/DacpacDeployUtility</a>
 <br />
-
+<br />
+Из <a href="https://github.com/imgen/DacpacDeployUtility/blob/fce4fed5c669e58b7c415e63c637328c387faae5/DacpacDeployUtility/DacpacDeployUtility.csproj#L37-L54">текста DacpacDeployUtility.csproj</a>
+<br />
+видно, что для работы используется пакет Microsoft.SqlServer.DacFx
+<br />
+а в нём сборки
+<ul>
+<li>Microsoft.Data.Tools.Schema.Sql.dll</li>
+<li>Microsoft.Data.Tools.Utilities.dll</li>
+<li>Microsoft.SqlServer.Dac.dll</li>
+<li>Microsoft.SqlServer.Dac.Extensions.dll</li>
+<li>Microsoft.SqlServer.TransactSql.ScriptDom.dll</li>
+<li>Microsoft.SqlServer.Types.dll</li>
+</ul>
 
 <h2>EF Core Power Tools</h2>
+Этот репозиторий гораздо, <strong>гораздо</strong> сложнее предыдущего по количеству зависимостей.
+<br />
+Но и в нём <a href="https://github.com/ErikEJ/EFCorePowerTools/blob/5b6a90a14ef127295525fc5c0fd8f92eb4e8d292/src/GUI/ErikEJ.EntityFrameworkCore.SqlServer.Dacpac/ErikEJ.EntityFrameworkCore.SqlServer.Dacpac.csproj#L19-L20">используется</a>
+<br />
+PackageReference Microsoft.SqlServer.DacFx
+
+<h2>Microsoft.SqlServer.DacFx</h2>
+<a href="https://github.com/microsoft/DACExtensions">https://github.com/microsoft/DACExtensions</a>
+<br />
+Это всего-лишь набор примеров, которые <a href="https://github.com/microsoft/DACExtensions/blob/be8f2a52451d3ccccfe0ab351f672f6bcdc823c6/DacFxStronglyTypedModel/DacFxStronglyTypedModel.csproj#L34-L52">используют DacFx</a>:
+<br />
+<a href="https://blogs.msmvps.com/deborahk/deploying-a-dacpac-with-dacfx-api/">https://blogs.msmvps.com/deborahk/deploying-a-dacpac-with-dacfx-api/</a>
+<br />
+DacFx API Version 3.0 is defined in <strong>Microsoft.SqlServer.Dac</strong>
+<br />
+<br />
+<a href="https://github.com/microsoft/sqltoolsservice/issues/623#issuecomment-394793292">https://github.com/microsoft/sqltoolsservice/issues/623#issuecomment-394793292</a>
+<br />
+We have backlog items for open-sourcing Parser, SMO, DacFx and other tools components,
+but there are quite a bit of details we need to work through prior to publishing
+these components that weren't originally developed as OSS.
+Unfortunately, I don't have an ETA for this work.
+
+<h2>Краткие итоги</h2>
+Исходных текстов нет, пользоваться этим нельзя.
+Поэтому надо взять и просто написать всё руками, потому что время идёт.
 
 </body>
 </html>
